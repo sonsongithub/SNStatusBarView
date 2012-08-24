@@ -1,0 +1,4 @@
+SNStatusBarView
+===============
+
+Blinking statusbar
