@@ -1,5 +1,8 @@
 SNStatusBarView
 ===============
+![sample image](http://sonson.jp/wp/wp-content/uploads/2012/08/SNStatusBarViewSample.png)
+
+This is an animating original status bar.
 
 License
 =======
