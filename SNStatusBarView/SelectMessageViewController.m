@@ -114,7 +114,7 @@
 	[tableView deselectRowAtIndexPath:indexPath animated:YES];
 	
 	AppDelegate *delegate = (AppDelegate*)[UIApplication sharedApplication].delegate;
-	[delegate.bar setMessage:[self.messages objectAtIndex:indexPath.row]];
+	[delegate.bar pushTemporaryMessage:[self.messages objectAtIndex:indexPath.row]];
 }
 
 @end

@@ -113,6 +113,11 @@
 @interface SNStatusBarView()
 @property (nonatomic, strong) SNStatusBarBackView *lightingView;
 @property (nonatomic, strong) UILabel *messageLabel;
+
+@property (nonatomic, strong) NSString *defaultMessage;
+@property (nonatomic, strong) NSMutableArray *queueingMessages;
+@property (nonatomic, strong) NSTimer *temporaryMessageTimer;
+
 @end
 
 @implementation SNStatusBarView
@@ -145,7 +150,45 @@
 	[self.lightingView.layer addAnimation:alphaAnimation forKey:@"hoge"];
 }
 
+- (void)pushTemporaryMessage:(NSString*)string {
+	[self.queueingMessages addObject:string];
+	
+	if (self.temporaryMessageTimer == nil) {
+		[self pop];
+		[self.temporaryMessageTimer invalidate];
+		self.temporaryMessageTimer = [NSTimer scheduledTimerWithTimeInterval:2 target:self selector:@selector(update) userInfo:nil repeats:YES];
+	}
+}
+
+- (void)pop {
+	if ([self.queueingMessages count]) {
+		NSString *newMessage = [self.queueingMessages objectAtIndex:0];
+		[self.queueingMessages removeObjectAtIndex:0];
+		[self updateMessageLabelWithString:newMessage];
+	}
+	else {
+		[self updateMessageLabelWithString:self.defaultMessage];
+		[self.temporaryMessageTimer invalidate];
+		self.temporaryMessageTimer = nil;
+	}
+}
+
+- (void)update {
+	DNSLogMethod
+	[self pop];
+}
+
 - (void)setMessage:(NSString*)message {
+	
+	if ([self.defaultMessage isEqualToString:message])
+		return;
+	
+	self.defaultMessage = message;
+	if (self.temporaryMessageTimer == nil)
+		[self updateMessageLabelWithString:message];
+}
+
+- (void)updateMessageLabelWithString:(NSString*)string {
 	UILabel *previous = self.messageLabel;
 	
 	// frame out previous label
@@ -165,7 +208,7 @@
 	
 	// frame in nexe label
 	self.messageLabel = [self makeMessageLabel];
-	self.messageLabel.text = message;
+	self.messageLabel.text = string;
 	[self addSubview:self.messageLabel];
 	[self bringSubviewToFront:self.messageLabel];
 	{
@@ -190,6 +233,7 @@
 						 self.messageLabel.frame = to;
 					 }
 					 completion:^(BOOL success) {
+						 self.defaultMessage = nil;
 					 }];
 }
 
@@ -197,6 +241,7 @@
     self = [super initWithFrame:frame];
     if (self) {
         // Initialization code
+		self.queueingMessages = [NSMutableArray array];
 		self.clipsToBounds = YES;
     }
     return self;

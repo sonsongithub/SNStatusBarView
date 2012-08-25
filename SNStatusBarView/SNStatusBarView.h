@@ -37,5 +37,6 @@
 - (void)setColor:(UIColor*)color;
 - (void)setMessage:(NSString*)message;
 - (void)startClosingAnimation;
+- (void)pushTemporaryMessage:(NSString*)string;
 
 @end
